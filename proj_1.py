@@ -40,13 +40,18 @@ class Puzzle:
         print(' '.join(action_str))
 
     def get_goal_state(self):
-        parity = 0
-        for i in range(9):
-            for j in range(i, 9):
-                if self.state[j] > self.state[i]:
-                    parity += 1
 
-        if parity % 2 == 0:
+        def calc_parity(state):  
+            parity = 0
+            for i in range(9):
+                for j in range(i, 9):
+                    if state[j] > state[i]:
+                        parity += 1
+            return parity % 2
+        
+        parity = calc_parity(self.state)
+
+        if parity == 0:
             return self.parity_0
         else:
             return self.parity_1
@@ -54,6 +59,7 @@ class Puzzle:
     def get_possible_actions(self, actions):
         new_state = self.get_updated_state(actions)
         i = self.find_empty_space(new_state)
+        
         possible_actions = []
         last_action = None
         if len(actions) > 0:
@@ -61,13 +67,13 @@ class Puzzle:
 
         add_new_action = lambda x: possible_actions.append(actions + [x])
 
-        if i - 3 >= 0 and last_action != Puzzle.DOWN:
+        if i > 2 and last_action != Puzzle.DOWN:
            add_new_action(Puzzle.UP)
-        if i - 1 >= 0 and i % 3 > 0 and last_action != Puzzle.RIGHT:
+        if i % 3 > 0 and last_action != Puzzle.RIGHT:
             add_new_action(Puzzle.LEFT)
-        if i + 1 < 9 and i % 3 < 2 and last_action != Puzzle.LEFT:
+        if i % 3 < 2 and last_action != Puzzle.LEFT:
             add_new_action(Puzzle.RIGHT)
-        if i + 3 < 9 and last_action != Puzzle.UP:
+        if i < 6 and last_action != Puzzle.UP:
             add_new_action(Puzzle.DOWN)
 
         return possible_actions
@@ -103,7 +109,7 @@ class Puzzle:
         queue = []
         queue.append([])
 
-        tried_actions = {}
+        tried_states = {}
 
         action_str = lambda x: ''.join([str(a) for a in x])
 
@@ -121,19 +127,19 @@ class Puzzle:
             if self.get_updated_state(p) == self.goal_state:
                 return self.state, p, node_count
 
-            tried_actions[action_str(p)] = 1
+            tried_states[action_str(self.get_updated_state(p))] = 1
             print(len(action_str(p)))
 
             for a in self.get_possible_actions(p):
 
-                if action_str(a) not in tried_actions:
+                if action_str(self.get_updated_state(a)) not in tried_states:
                     queue.append(a)
                     node_count += 1
 
     def a_star_search(self, h):
         pqueue = []
 
-        tried_actions = {}
+        tried_states = {}
 
         action_str = lambda x: ''.join([str(a) for a in x])
 
@@ -149,18 +155,27 @@ class Puzzle:
             if self.get_updated_state(p) == self.goal_state:
                 return self.state, p, node_count
 
-            tried_actions[action_str(p)] = 1
+            tried_states[action_str(self.get_updated_state(p))] = 1
 
             print(c - len(p))
+            # print(self.get_possible_actions(p))
             # self.print_state(self.get_updated_state(p))
             # self.print_actions(p)
             # self.print_state(self.goal_state)
 
             for a in self.get_possible_actions(p):
 
-                if action_str(a) not in tried_actions:
+                if action_str(self.get_updated_state(a)) in tried_states:
+                    continue
+                
+                in_frontier = len([i for i in pqueue if i[1] == a]) > 0
+                if not in_frontier:
                     heapq.heappush(pqueue, (cost(a), a))
                     node_count += 1
+        
+        print(self.state)
+        print(self.goal_state)
+        print(node_count)      
 
 
 def manhattan(curr_state, goal_state):
@@ -173,6 +188,14 @@ def manhattan(curr_state, goal_state):
         total_diff += vert_diff + hori_diff
     return total_diff
 
+def out_of_place(curr_state, goal_state):
+    assert len(curr_state) == 9 and len(goal_state) == 9
+    total_diff = 0
+    for i, v in enumerate(curr_state):
+        goal_i = goal_state.index(v)
+        if i != goal_i:
+            total_diff += 1
+    return total_diff
 
 if __name__ == '__main__':
     input_arr = None
@@ -182,8 +205,9 @@ if __name__ == '__main__':
     puzzle = Puzzle(input_arr) if input_arr else Puzzle()
 
     # state, actions, count = puzzle.bfs_search()
-    state, actions, count = puzzle.a_star_search(manhattan)
-
+    # state, actions, count = puzzle.a_star_search(manhattan)
+    state, actions, count = puzzle.a_star_search(out_of_place)
+    
     puzzle.print_state(puzzle.get_updated_state(actions, state))
     puzzle.print_actions(actions)
     puzzle.print_state(puzzle.get_goal_state())
