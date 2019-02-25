@@ -132,13 +132,15 @@ class Puzzle:
 
             for a in self.get_possible_actions(p):
                 
-                if action_str(self.get_updated_state(a)) in tried_states:
-                    continue
-                
-                if a not in queue:
+                if action_str(self.get_updated_state(a)) not in tried_states:
                     queue.append(a)
                     node_count += 1
-        
+
+                # frontier check is removed despite duplication for faster 
+                # search, due to dictionary search being much faster than 
+                # linear search of queue
+
+        print(len(tried_states.keys())) 
         print(self.state)
         print(self.goal_state)
         print(node_count)      
@@ -162,8 +164,8 @@ class Puzzle:
             if self.get_updated_state(p) == self.goal_state:
                 return self.state, p, node_count
 
-            tried_states[action_str(self.get_updated_state(p))] = 1
-
+            
+            # print(p)
             print(len(p), c - len(p))
             # print(self.get_possible_actions(p))
             # self.print_state(self.get_updated_state(p))
@@ -172,14 +174,13 @@ class Puzzle:
 
             for a in self.get_possible_actions(p):
 
-                if action_str(self.get_updated_state(a)) in tried_states:
-                    continue
-                
-                in_frontier = len([i for i in pqueue if i[1] == a]) > 0
-                if not in_frontier:
+                if action_str(self.get_updated_state(a)) not in tried_states:
                     heapq.heappush(pqueue, (cost(a), a))
                     node_count += 1
-        
+            
+            tried_states[action_str(self.get_updated_state(p))] = 1
+
+        print(len(tried_states.keys()))        
         print(self.state)
         print(self.goal_state)
         print(node_count)      
@@ -212,9 +213,9 @@ if __name__ == '__main__':
 
     puzzle = Puzzle(input_arr) if input_arr else Puzzle()
 
-    state, actions, count = puzzle.bfs_search()
+    # state, actions, count = puzzle.bfs_search()
     # state, actions, count = puzzle.a_star_search(manhattan)
-    # state, actions, count = puzzle.a_star_search(out_of_place)
+    state, actions, count = puzzle.a_star_search(out_of_place)
     
     puzzle.print_state(puzzle.get_updated_state(actions, state))
     puzzle.print_actions(actions)
