@@ -19,7 +19,7 @@ class Puzzle:
         else:
             self.state = [i for i in range(9)]
             random.shuffle(self.state)
-            self.goal_state = self.get_goal_state()
+        self.goal_state = self.get_goal_state()
 
     def print_state(self, state):
         print('{0}\n{1}\n{2}'.format(
@@ -131,10 +131,17 @@ class Puzzle:
             print(len(action_str(p)))
 
             for a in self.get_possible_actions(p):
-
-                if action_str(self.get_updated_state(a)) not in tried_states:
+                
+                if action_str(self.get_updated_state(a)) in tried_states:
+                    continue
+                
+                if a not in queue:
                     queue.append(a)
                     node_count += 1
+        
+        print(self.state)
+        print(self.goal_state)
+        print(node_count)      
 
     def a_star_search(self, h):
         pqueue = []
@@ -157,7 +164,7 @@ class Puzzle:
 
             tried_states[action_str(self.get_updated_state(p))] = 1
 
-            print(c - len(p))
+            print(len(p), c - len(p))
             # print(self.get_possible_actions(p))
             # self.print_state(self.get_updated_state(p))
             # self.print_actions(p)
@@ -200,13 +207,14 @@ def out_of_place(curr_state, goal_state):
 if __name__ == '__main__':
     input_arr = None
     if len(sys.argv) == 10:
-        input_arr = [i for i in sys.argv[1:]]
+        input_arr = [int(i) for i in sys.argv[1:]]
+        print(input_arr)
 
     puzzle = Puzzle(input_arr) if input_arr else Puzzle()
 
-    # state, actions, count = puzzle.bfs_search()
+    state, actions, count = puzzle.bfs_search()
     # state, actions, count = puzzle.a_star_search(manhattan)
-    state, actions, count = puzzle.a_star_search(out_of_place)
+    # state, actions, count = puzzle.a_star_search(out_of_place)
     
     puzzle.print_state(puzzle.get_updated_state(actions, state))
     puzzle.print_actions(actions)
