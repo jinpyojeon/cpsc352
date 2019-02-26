@@ -1,7 +1,7 @@
 import sys
 import random
 import heapq
-
+import time
 
 class Puzzle:
 
@@ -118,17 +118,10 @@ class Puzzle:
         while len(queue) > 0:
             p = queue.pop(0)
 
-            '''
-            self.print_state(self.state)
-            self.print_actions(p)
-            self.print_state(self.get_updated_state(p))
-            '''
-
             if self.get_updated_state(p) == self.goal_state:
                 return self.state, p, node_count
 
             tried_states[action_str(self.get_updated_state(p))] = 1
-            print(len(action_str(p)))
 
             for a in self.get_possible_actions(p):
                 
@@ -140,10 +133,6 @@ class Puzzle:
                 # search, due to dictionary search being much faster than 
                 # linear search of queue
 
-        print(len(tried_states.keys())) 
-        print(self.state)
-        print(self.goal_state)
-        print(node_count)      
 
     def a_star_search(self, h):
         pqueue = []
@@ -164,14 +153,6 @@ class Puzzle:
             if self.get_updated_state(p) == self.goal_state:
                 return self.state, p, node_count
 
-            
-            # print(p)
-            # print(len(p), c - len(p))
-            # print(self.get_possible_actions(p))
-            # self.print_state(self.get_updated_state(p))
-            # self.print_actions(p)
-            # self.print_state(self.goal_state)
-
             for a in self.get_possible_actions(p):
 
                 if action_str(self.get_updated_state(a)) not in tried_states:
@@ -179,11 +160,6 @@ class Puzzle:
                     node_count += 1
             
             tried_states[action_str(self.get_updated_state(p))] = 1
-
-        print(len(tried_states.keys()))        
-        print(self.state)
-        print(self.goal_state)
-        print(node_count)      
 
 
 def manhattan(curr_state, goal_state):
@@ -213,15 +189,48 @@ if __name__ == '__main__':
 
     puzzle = Puzzle(input_arr) if input_arr else Puzzle()
 
-    # state, actions, count = puzzle.bfs_search()
-    # state, actions, count = puzzle.a_star_search(manhattan)
+    # BFS    
+
+    start = time.time()
+
+    state, actions, count = puzzle.bfs_search()
+
+    end = time.time()    
+
+    print('Time to complete BFS: ', end - start)
+    puzzle.print_state(state)
+    puzzle.print_actions(actions[:3])
+    print('Number of actions: ', len(actions))
+    print(count)
+
+    # A* with Manhattan
+
+    start = time.time()    
+
+    state, actions, count = puzzle.a_star_search(manhattan)
+
+    end = time.time()
+    
+    print('Time to complete A* with Manhattan: ', end - start)
+    puzzle.print_state(state)
+    puzzle.print_actions(actions[:3])
+    print('Number of actions: ', len(actions))
+    print(count)
+
+    # A* with Out of Place heuristic
+    
+    start = time.time()
+
     state, actions, count = puzzle.a_star_search(out_of_place)
     
-    puzzle.print_state(state) # puzzle.get_updated_state(actions, state))
-    puzzle.print_actions(actions)
-    puzzle.print_state(puzzle.get_goal_state())
+    end = time.time()
+    
+    print('Time to complete A* with Out of Place: ', end - start)
+    puzzle.print_state(state)
+    puzzle.print_actions(actions[:3])
+    print('Number of actions: ', len(actions))
+    print(count)
+    
+    print() 
 
-    
-    
-    
 

@@ -1,1 +1,12 @@
+How to run the program
 
+Run the program as follows:
+
+python proj_1.py                        To run without input
+    
+python proj_1.py 0 1 2 3 4 5 6 7 8      To run with input
+
+
+Analysis of the algorithm performance
+
+As expected, the informed search with heuristic performs drastically better than a simple uninformed BFS search. Furthermore, A* with Manhattan distance heuristic (which is evidently more informative that out-of-place heuristic) is more effective than A* with out-of-place heuristic - usually by factor of 10 in terms of time and nodes explored. By comparison, A* performs better by the factor of 1000 in terms of time and nodes explored. Due to the cost function accounting for the length of moves, A* seems to find the shortest list of moves that lead to the goal state just like the BFS. 
