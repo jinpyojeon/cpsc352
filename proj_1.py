@@ -45,7 +45,7 @@ class Puzzle:
             parity = 0
             for i in range(9):
                 for j in range(i, 9):
-                    if state[j] > state[i]:
+                    if state[j] > state[i] and state[i] != 0:
                         parity += 1
             return parity % 2
         
@@ -166,7 +166,7 @@ class Puzzle:
 
             
             # print(p)
-            print(len(p), c - len(p))
+            # print(len(p), c - len(p))
             # print(self.get_possible_actions(p))
             # self.print_state(self.get_updated_state(p))
             # self.print_actions(p)
@@ -217,13 +217,10 @@ if __name__ == '__main__':
     # state, actions, count = puzzle.a_star_search(manhattan)
     state, actions, count = puzzle.a_star_search(out_of_place)
     
-    puzzle.print_state(puzzle.get_updated_state(actions, state))
+    puzzle.print_state(state) # puzzle.get_updated_state(actions, state))
     puzzle.print_actions(actions)
     puzzle.print_state(puzzle.get_goal_state())
 
-    print(state)
-    print(actions)
-    print(count)
     
     
     
