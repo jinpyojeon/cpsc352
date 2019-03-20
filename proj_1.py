@@ -204,7 +204,7 @@ if __name__ == '__main__':
     print(count)
 
     # A* with Manhattan
-
+    '''
     start = time.time()    
 
     state, actions, count = puzzle.a_star_search(manhattan)
@@ -217,8 +217,9 @@ if __name__ == '__main__':
     print('Number of actions: ', len(actions))
     print(count)
 
+    '''
     # A* with Out of Place heuristic
-    
+    '''
     start = time.time()
 
     state, actions, count = puzzle.a_star_search(out_of_place)
@@ -232,5 +233,5 @@ if __name__ == '__main__':
     print(count)
     
     print() 
-
+    '''
 
