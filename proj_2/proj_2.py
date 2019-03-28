@@ -14,68 +14,59 @@ class TicTacToe:
         
         self.board = [EMPTY] * 9
         
-    
-    def calculate_best_move(self, board, player):
-        
-        opponent = BOT if player == PLAYER else PLAYER
-
-        moves = self.get_possible_moves(board)
-
-        score_moves = []
-
-        score = 0
-
-        for m in moves:    
-
-            moved_board = self.get_moved_board(board, m, player) 
-            
-            if self.is_won(player, moved_board):
-                score += 1
-            
-            
-            _, opponent_score = self.calculate_best_move(moved_board, 
-                                                         opponent)
-            
-            score_moves.append((m, opponent_score))
-        
-        if len(score_moves) > 0: 
-            move, score = min(score_moves, key = lambda x : x[1])
-        
-        return move, score
-
-    def max_value(self, board, player):
-        ended = terminal_state(self, board, player)
-        if ended != 0:
-            return ended
-        
-        score = float('inf')
-        moves = self.get_possible_moves(board)
-
-        for m in moves:
-            score = max(score, self.min_value(board, player))   
-
-        return score
-
-    def max_value(self, board, player):
-        ended = terminal_state(self, board, player)
-        if ended != 0:
-            return ended
-        
-        score = float('inf')
-        moves = self.get_possible_moves(board)
-
-        for m in moves:
-            score = min(score, self.min_value(board, player))   
-
-        return score
-    
-    def terminal_test(self, board, player):
+    def terminal_state(self, board, player):
         if self.is_won(player, board):
             return 1
         elif self.is_won(opponent(player), board):
             return -1
         else:
             return 0
+    
+    def max_value(self, board, player):
+        ended = self.terminal_state(board, player)
+        if ended != 0:
+            return ended
+        
+        score = float('inf')
+        moves = self.get_possible_moves(board)
+
+        for m in moves:
+            moved_board = self.get_moved_board(board, m, player)
+            score = max(score, self.min_value(moved_board, opponent(player)))   
+
+        return score
+
+    def min_value(self, board, player):
+        ended = self.terminal_state(board, player)
+        if ended != 0:
+            return ended
+        
+        score = float('inf')
+        moves = self.get_possible_moves(board)
+
+        for m in moves:
+            moved_board = self.get_moved_board(board, m, player)
+            score = min(score, self.max_value(moved_board, opponent(player)))   
+
+        return score
+    
+    def calculate_best_move(self, board, player):
+        
+        moves = self.get_possible_moves(board)
+        
+        scored_moves = []
+
+        for m in moves:
+            if self.terminal_state(self.get_moved_board(board, m, player), player) == 1:
+                return m
+
+            moved_board = self.get_moved_board(board, m, player)
+            scored_moves.append((m, self.min_value(moved_board, opponent(player))))
+
+        best_move = max(scored_moves, key= lambda x : x[1])[0]
+
+        return best_move
+    
 
     def make_move(self, pos, player):
         if self.board[pos - 1] == EMPTY:
@@ -88,7 +79,6 @@ class TicTacToe:
         new_board = list(board)
         new_board[move - 1] = player
         return new_board
-            
 
     def get_possible_moves(self, board):
         possible_moves = [i + 1 for i, v in enumerate(board) if v == EMPTY]
@@ -121,7 +111,7 @@ class TicTacToe:
         return any_hori or any_vert or any_diag
   
     def game_ended(self):
-        return self.is_won(PLAYER) or self.is_won(BOT)      
+        return self.is_won(PLAYER) or self.is_won(BOT) or len(self.get_possible_moves(self.board)) == 0     
 
 if __name__ == '__main__':
 
@@ -136,10 +126,17 @@ if __name__ == '__main__':
             move = int(input())
             valid = t.make_move(move, PLAYER)
         if not t.game_ended():
-            best_move, _ = t.calculate_best_move(t.board, BOT) 
+            best_move = t.calculate_best_move(t.board, BOT) 
             t.make_move(best_move, BOT)
             t.print_board()
-    print('O is the winner!' if t.is_won(BOT) else 'X is the winner!')
+    
+    if t.is_won(BOT):
+        print('O is the winner!') 
+    elif t.is_won(PLAYER):
+        print('X is the winner!')
+    else:
+        print('It is a draw!')
+            
         
     
    
