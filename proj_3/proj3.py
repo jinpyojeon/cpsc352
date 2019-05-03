@@ -21,12 +21,55 @@ class TortoisePerf:
     medium = 1
     fast = 2
 
-def prior_sample(N):
+course_length = {
+    'short': 0.5,
+    'long': 0.5
+}
 
-    return prob
+weather = {
+    'coldWet': 0.3,
+    'hot': 0.2,
+    'nice': 0.5
+}
 
-def rejection_sample():
-    pass
+hare_perf_list = [HarePerf.slow, HarePerf.medium, HarePerf.fast] 
+tortoise_perf_list = [TortoisePerf.slow, TortoisePerf.medium, TortoisePerf.fast]
+
+def form_perf_dict(l, p):
+    return { k : v for k, v in zip(p, l) }
+
+form_hare_dict = lambda l : form_perf_dict(l, hare_perf_list)
+form_tortoise_dict = lambda l : form_perf_dict(l, tortoise_perf_list)
+
+hare_perf_dict = {
+    (Course.Short, Weather.coldWet) : form_hare_dict([0.5, 0.3, 0.2]), 
+    (Course.Short, Weather.hot) : form_hare_dict([0.1, 0.2, 0.7]), 
+    (Course.Short, Weather.nice) : form_hare_dict([0.0, 0.2, 0.8]), 
+    (Course.Long, Weather.coldWet) : form_hare_dict([0.7, 0.2, 0.1]), 
+    (Course.Long, Weather.hot) : form_hare_dict([0.2, 0.4, 0.4]), 
+    (Course.Long, Weather.nice) : form_hare_dict([0.1, 0.3, 0.6]), 
+}
+
+tortoise_perf_dict = {
+    (Course.Short, Weather.coldWet) : form_tortoise_dict([0.2, 0.3, 0.5]), 
+    (Course.Short, Weather.hot) : form_tortoise_dict([0.4, 0.5, 0.1]), 
+    (Course.Short, Weather.nice) : form_tortoise_dict([0.3, 0.5, 0.2]), 
+    (Course.Long, Weather.coldWet) : form_tortoise_dict([0.2, 0.4, 0.4]), 
+    (Course.Long, Weather.hot) : form_tortoise_dict([0.2, 0.5, 0.3]), 
+    (Course.Long, Weather.nice) : form_tortoise_dict([0.4, 0.4, 0.2]), 
+}
+
+result_dict = {
+    (HarePerf.slow, TortoisePerf.slow): 0.5,
+    (HarePerf.slow, TortoisePerf.medium): 0.1,
+    (HarePerf.slow, TortoisePerf.fast): 0.0,
+    (HarePerf.medium, TortoisePerf.slow): 0.8,
+    (HarePerf.medium, TortoisePerf.medium): 0.5,
+    (HarePerf.medium, TortoisePerf.fast): 0.2,
+    (HarePerf.fast, TortoisePerf.slow): 0.9,
+    (HarePerf.fast, TortoisePerf.medium): 0.7,
+    (HarePerf.fast, TortoisePerf.fast): 0.5
+}
 
 def select_randomly(probs):
     random_roll = random.uniform(0, 1)
@@ -38,6 +81,30 @@ def select_randomly(probs):
         last_prob = v
 
     raise Exception('Incorrect probability distribution')
+
+def try_random(prob):
+    random_roll = random.uniform(0, 1)
+
+    return prob >= random_roll
+
+def prior_sample(bayesian_vars, N):
+
+    course, weather, hare_perf, tortoise_perf = bayesian_vars
+
+    hare_vic, hare_lose = 0, 0
+    for i in range(N):
+        if course is None:
+            pass
+        if weather is None:
+            pass
+        
+       
+
+    return prob
+
+def rejection_sample():
+    pass
+
 
 
 if __name__ == '__main__':
@@ -65,60 +132,12 @@ if __name__ == '__main__':
             pass
     '''
 
-    course_length = {
-        'short': 0.5,
-        'long': 0.5
-    }
-
-    weather = {
-        'coldWet': 0.3,
-        'hot': 0.2,
-        'nice': 0.5
-    }
-
-    hare_perf_list = [HarePerf.slow, HarePerf.medium, HarePerf.fast] 
-    tortoise_perf_list = [TortoisePerf.slow, TortoisePerf.medium, TortoisePerf.fast]
-
-    def form_perf_dict(l, p):
-        return { k : v for k, v in zip(p, l) }
-
-    form_hare_dict = lambda l : form_perf_dict(l, hare_perf_list)
-    form_tortoise_dict = lambda l : form_perf_dict(l, tortoise_perf_list)
-
-    hare_perf_dict = {
-        (Course.Short, Weather.coldWet) : form_hare_dict([0.5, 0.3, 0.2]), 
-        (Course.Short, Weather.hot) : form_hare_dict([0.1, 0.2, 0.7]), 
-        (Course.Short, Weather.nice) : form_hare_dict([0.0, 0.2, 0.8]), 
-        (Course.Long, Weather.coldWet) : form_hare_dict([0.7, 0.2, 0.1]), 
-        (Course.Long, Weather.hot) : form_hare_dict([0.2, 0.4, 0.4]), 
-        (Course.Long, Weather.nice) : form_hare_dict([0.1, 0.3, 0.6]), 
-    }
-
-    tortoise_perf_dict = {
-        (Course.Short, Weather.coldWet) : form_tortoise_dict([0.2, 0.3, 0.5]), 
-        (Course.Short, Weather.hot) : form_tortoise_dict([0.4, 0.5, 0.1]), 
-        (Course.Short, Weather.nice) : form_tortoise_dict([0.3, 0.5, 0.2]), 
-        (Course.Long, Weather.coldWet) : form_tortoise_dict([0.2, 0.4, 0.4]), 
-        (Course.Long, Weather.hot) : form_tortoise_dict([0.2, 0.5, 0.3]), 
-        (Course.Long, Weather.nice) : form_tortoise_dict([0.4, 0.4, 0.2]), 
-    }
-
-    result_dict = {
-        (HarePerf.slow, TortoisePerf.slow): 0.5,
-        (HarePerf.slow, TortoisePerf.medium): 0.1,
-        (HarePerf.slow, TortoisePerf.fast): 0.0,
-        (HarePerf.medium, TortoisePerf.slow): 0.8,
-        (HarePerf.medium, TortoisePerf.medium): 0.5,
-        (HarePerf.medium, TortoisePerf.fast): 0.2,
-        (HarePerf.fast, TortoisePerf.slow): 0.9,
-        (HarePerf.fast, TortoisePerf.medium): 0.7,
-        (HarePerf.fast, TortoisePerf.fast): 0.5
-    }
-    
+    '''   
     count = collections.defaultdict(int)
     for i in range(100):
         v = select_randomly(course_length)
         count[v] += 1
-   
+    '''
+    
     print(hare_perf_dict) 
     print(count) 
