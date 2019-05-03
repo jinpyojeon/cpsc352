@@ -21,12 +21,12 @@ class TortoisePerf:
     medium = 1
     fast = 2
 
-course_length = {
+course_dict = {
     'short': 0.5,
     'long': 0.5
 }
 
-weather = {
+weather_dict = {
     'coldWet': 0.3,
     'hot': 0.2,
     'nice': 0.5
@@ -89,7 +89,7 @@ def try_random(prob):
 
 def prior_sample(bayesian_vars, N):
 
-    course, weather, hare_perf, tortoise_perf = bayesian_vars
+    course, weather = bayesian_vars
 
     hare_vic, hare_lose = 0, 0
     for i in range(N):
@@ -97,15 +97,38 @@ def prior_sample(bayesian_vars, N):
             pass
         if weather is None:
             pass
-        
-       
+		hare_perf = select_randomly(hare_perf_dict[(course, weather)])
+		tortoise_perf = select_randomly(tortoise_perf_dict[(course, weather)])
+		hare_won = try_random(result_dict[(hare_perf, tortoise_perf)])
 
-    return prob
+		if hare_won:
+			hare_vic += 1
+		else:
+			hare_lose += 1
 
-def rejection_sample():
-    pass
+	return hare_vic / N
 
+def rejection_sample(query, N):
 
+	samples = []
+
+	for i in range(N):
+		course = select_randomly(course_dict)
+		weather = select_randomly(weather_dict)
+		hare_perf = select_randomly(hare_perf_dict[(course, weather)])
+		tortoise_perf = select_randomly(tortoise_perf_dict[(course, weather)])
+		hare_won = try_random(result_dict[(hare_perf, tortoise_perf)])
+		samples.append((course, weather, hare_perf, tortoise_perf, hare_won))
+
+	def match_post(query, sample):
+		for i in range(len(query)):
+			if query[i] is not None and query[i] != sample[i]:
+				return False
+		return True
+
+	samples = list(filter(lambda s: not match_post(query, s), samples))
+
+	return samples / N
 
 if __name__ == '__main__':
 
@@ -116,28 +139,16 @@ if __name__ == '__main__':
     '''
     
     query_dict = {
-        1: '', 
-        2: '',
-        3: ''
+        1: [prior_sample((None, None), 100)], 
+        2: [prior_sample((None, Weather.coldWet), 100)],
+        3: [rejection_sample((Course.Short, Weather.coldWet, None, None, False), 100),
+			rejection_sample((Course.Short, Weather.hot, None, None, False), 100),
+			rejection_sample((Course.Short, Weather.nice, None, None, False), 100)]
     }
 
-    '''
     while True:
         option = input(queries_string)
-        if option == 1:
-           
-        elif option == 2:
-            pass
-        elif option == 3:
-            pass
-    '''
-
-    '''   
-    count = collections.defaultdict(int)
-    for i in range(100):
-        v = select_randomly(course_length)
-        count[v] += 1
-    '''
-    
-    print(hare_perf_dict) 
-    print(count) 
+		if option in query_dict:
+			print(query_dict[option])
+		else:
+			print('Query selection not valid')
