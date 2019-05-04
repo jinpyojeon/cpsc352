@@ -95,14 +95,12 @@ def try_random(prob):
 
 def prior_sample(bayesian_vars, N):
 
-	course, weather = bayesian_vars
+	course_selected, weather_selected = bayesian_vars
 
 	hare_vic = 0
 	for i in range(N):
-		if course is None:
-			course = select_randomly(course_dict)
-		if weather is None:
-			weather = select_randomly(weather_dict)
+		course = select_randomly(course_dict) if course_selected is None else course_selected
+		weather = select_randomly(weather_dict) if weather_selected is None else weather_selected
 		
 		hare_perf = select_randomly(hare_perf_dict[(course, weather)])
 		tortoise_perf = select_randomly(tortoise_perf_dict[(course, weather)])
